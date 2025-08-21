@@ -14,9 +14,16 @@ export const ImageModal: React.FC<ImageModalProps> = ({
   closeModal,
 }) => {
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   const handleImageLoad = () => {
     setImageLoading(false);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    setImageLoading(false);
+    setImageError(true);
   };
 
   return (
@@ -25,18 +32,33 @@ export const ImageModal: React.FC<ImageModalProps> = ({
         <button className="modal-close" onClick={closeModal}>
           ✕
         </button>
-        {imageLoading && (
-          <>
-            <Loader message="Loading high-res image..." />
-            <br />
-          </>
-        )}
-        <img
-          src={`https://picsum.photos/id/${selectedImage.id}/${selectedImage.width}/${selectedImage.height}`}
-          alt={`Large view - Photo by ${selectedImage.author}`}
-          className="modal-image"
-          onLoad={handleImageLoad}
-        />
+        <div className="modal-image-container">
+          {imageLoading && !imageError && (
+            <div className="modal-loading">
+              <Loader message="Loading high-resolution image..." />
+            </div>
+          )}
+
+          {imageError && (
+            <div className="modal-error">
+              <div className="error-content">
+                <span className="error-icon">⚠️</span>
+                <h3>Failed to load image</h3>
+                <p>The high-resolution image couldn't be loaded.</p>
+              </div>
+            </div>
+          )}
+
+          {!imageError && (
+            <img
+              src={`https://picsum.photos/id/${selectedImage.id}/${selectedImage.width}/${selectedImage.height}`}
+              alt={`Large view - Photo by ${selectedImage.author}`}
+              className="modal-image"
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+            />
+          )}
+        </div>
         <div className="modal-info">
           <h3>📸 {selectedImage.author}</h3>
           <p>Image ID: {selectedImage.id}</p>
